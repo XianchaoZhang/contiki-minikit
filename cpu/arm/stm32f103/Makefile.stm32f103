@@ -49,8 +49,6 @@ NM       = arm-elf-nm
 OBJCOPY  = arm-elf-objcopy
 STRIP    = arm-elf-strip
 
-XSLTPROC=xsltproc
-
 PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
 
 LINKERSCRIPT = $(CONTIKI_CPU)/STM32F103$(SUBTARGET).ld
