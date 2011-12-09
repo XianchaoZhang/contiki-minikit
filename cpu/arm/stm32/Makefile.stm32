@@ -14,9 +14,6 @@ endif
 
 LIBOPENCM3_SUFFIX = $(subst /,,$(LIBOPENCM3_TARGET))
 
-# Default to STM32F103CB
-SUBTARGET = CB
-
 ### Code common for all ARM CPUs
 
 CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
@@ -84,7 +81,7 @@ CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
            -I$(CONTIKI)/platform/$(TARGET) \
            ${addprefix -I,$(APPDIRS)} \
            -DWITH_UIP -DWITH_ASCII -DMCK=$(MCK) \
-           -Wall $(ARCH_FLAGS) -g -D SUBTARGET=$(SUBTARGET)
+           -Wall $(ARCH_FLAGS) -g
 
 CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN \
            -I $(LIBOPENCM3_HOME)/include
