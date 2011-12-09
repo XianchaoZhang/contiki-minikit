@@ -20,33 +20,14 @@ CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
 CONTIKI_CPU_ARM_COMMON=$(CONTIKI_CPU_ARM)/common
 
 ### Define the CPU directory
-CONTIKI_CPU=$(CONTIKI)/cpu/arm/stm32
 
+CONTIKI_CPU=$(CONTIKI)/cpu/arm/stm32
 
 ### Define the source files we have in the STM32F103 port
 
-CONTIKI_CPU_DIRS = .# ../common/dbg-io ../common/usb loader
+CONTIKI_CPU_DIRS = .
 
-
-
-STM32F103     = clock.c #debug-uart.c interrupt-utils.c newlib-syscalls.c sys-interrupt.c rtimer-arch.c rtimer-arch-interrupt.c uip-log.c
-
-# SYSAPPS = codeprop-otf.c
-# APPDIRS += $(CONTIKI)/cpu/at91sam7s/loader
-
-# ELFLOADER = elfloader-otf.c elfloader-arm.c symtab.c cfs-ram.c
-
-#include $(CONTIKI_CPU_ARM_COMMON)/usb/Makefile.usb
-
-#include $(CONTIKI_CPU_ARM_COMMON)/SD-card/Makefile.sdcard
-
-#TARGETLIBS = random.c dbg-printf.c
-TARGETLIBS = #dbg-puts.c dbg-putchar.c dbg-sprintf.c dbg-snprintf.c strformat.c
-
-CONTIKI_TARGET_SOURCEFILES += $(STM32F103) $(SYSAPPS) $(ELFLOADER) \
-			$(TARGETLIBS) $(UIPDRIVERS) $(USB)
-
-CONTIKI_SOURCEFILES        += $(CONTIKI_TARGET_SOURCEFILES)
+CONTIKI_SOURCEFILES += clock.c
 
 
 THREADS =
@@ -76,9 +57,7 @@ PROG=openocd
 
 ARCH_FLAGS= -march=armv7-m -mthumb
 
-CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
-	   -I$(CONTIKI_CPU)/dbg-io \
-           -I$(CONTIKI)/platform/$(TARGET) \
+CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) \
            ${addprefix -I,$(APPDIRS)} \
            -DWITH_UIP -DWITH_ASCII -DMCK=$(MCK) \
            -Wall $(ARCH_FLAGS) -g
