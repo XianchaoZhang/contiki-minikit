@@ -1,3 +1,4 @@
+LIBOPENCM3_TARGET = stm32/f1
 #CODEPROP_SOURCES = codeprop-otf.c ram-segments.c
 
 CONTIKI_TARGET_DIRS = .

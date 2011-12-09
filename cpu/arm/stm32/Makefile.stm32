@@ -1,11 +1,17 @@
-# Adapted from Makefile.msp430
+# Following need to be defined outside of this file
+
+ifndef LIBOPENCM3_HOME
+  $(error please set LIBOPENCM3_HOME to point to the top of libopencm3 source)
+endif
+
+ifndef LIBOPENCM3_TARGET
+  $(error platform Makefile should define LIBOPENCM3_TARGET. e.g. "stm32/f1")
+endif
+
+LIBOPENCM3_SUFFIX = $(subst /,,$(LIBOPENCM3_TARGET))
 
 # Default to STM32F103CB
 SUBTARGET = CB
-
-#LIBOPENCM3_HOME =
-LIBOPENCM3_TARGET = stm32/f1
-
 
 ### Code common for all ARM CPUs
 
@@ -81,7 +87,7 @@ CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
 CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN \
            -I $(LIBOPENCM3_HOME)/include
 LDFLAGS += -L $(CONTIKI_CPU) -T $(LINKERSCRIPT) -nostartfiles \
-           -L $(LIBOPENCM3_HOME)/lib/stm32/f1 \
+           -L $(LIBOPENCM3_HOME)/lib/$(LIBOPENCM3_TARGET) \
            -Wl,--gc-sections
 
 CDEPFLAGS = $(CFLAGS) -D __MAKING_DEPS__
@@ -133,7 +139,7 @@ CUSTOM_RULE_LINK=yes
 	$(AS) -o $(notdir $(<:.S=.o)) $<
 
 %-nosyms.$(TARGET): %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a # $(OBJECTDIR)/empty-symbols.o
-	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) $(filter %.a,$^) -lopencm3_stm32f1 -lc -lnosys
+	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) $(filter %.a,$^) -lopencm3_$(LIBOPENCM3_SUFFIX) -lc -lnosys
 
 
 %.ihex: %.$(TARGET)
