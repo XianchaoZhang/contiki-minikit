@@ -18,22 +18,23 @@ CONTIKI_CPU=$(CONTIKI_CPU_ARM)/stm32f103
 
 ### Define the source files we have in the STM32F103 port
 
-CONTIKI_CPU_DIRS = . ../common/dbg-io ../common/usb loader
+CONTIKI_CPU_DIRS = .# ../common/dbg-io ../common/usb loader
 
 
 
-STM32F103     = clock.c debug-uart.c # interrupt-utils.c newlib-syscalls.c sys-interrupt.c rtimer-arch.c rtimer-arch-interrupt.c uip-log.c
+STM32F103     = clock.c #debug-uart.c interrupt-utils.c newlib-syscalls.c sys-interrupt.c rtimer-arch.c rtimer-arch-interrupt.c uip-log.c
 
 # SYSAPPS = codeprop-otf.c
 # APPDIRS += $(CONTIKI)/cpu/at91sam7s/loader
 
 # ELFLOADER = elfloader-otf.c elfloader-arm.c symtab.c cfs-ram.c
 
-include $(CONTIKI_CPU_ARM_COMMON)/usb/Makefile.usb
+#include $(CONTIKI_CPU_ARM_COMMON)/usb/Makefile.usb
 
-include $(CONTIKI_CPU_ARM_COMMON)/SD-card/Makefile.sdcard
+#include $(CONTIKI_CPU_ARM_COMMON)/SD-card/Makefile.sdcard
 
-TARGETLIBS = random.c dbg-printf.c dbg-puts.c dbg-putchar.c dbg-sprintf.c dbg-snprintf.c strformat.c
+#TARGETLIBS = random.c dbg-printf.c
+TARGETLIBS = #dbg-puts.c dbg-putchar.c dbg-sprintf.c dbg-snprintf.c strformat.c
 
 CONTIKI_TARGET_SOURCEFILES += $(STM32F103) $(SYSAPPS) $(ELFLOADER) \
 			$(TARGETLIBS) $(UIPDRIVERS) $(USB)
@@ -81,7 +82,7 @@ CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN \
            -I $(LIBOPENCM3_HOME)/include
 LDFLAGS += -L $(CONTIKI_CPU) -T $(LINKERSCRIPT) -nostartfiles \
            -L $(LIBOPENCM3_HOME)/lib/stm32/f1 \
-           -lopencm3_stm32f1
+           -Wl,--gc-sections
 
 CDEPFLAGS = $(CFLAGS) -D __MAKING_DEPS__
 
@@ -132,7 +133,7 @@ CUSTOM_RULE_LINK=yes
 	$(AS) -o $(notdir $(<:.S=.o)) $<
 
 %-nosyms.$(TARGET): %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a # $(OBJECTDIR)/empty-symbols.o
-	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) -lc $(filter %.a,$^)
+	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) $(filter %.a,$^) -lopencm3_stm32f1 -lc -lnosys
 
 
 %.ihex: %.$(TARGET)
