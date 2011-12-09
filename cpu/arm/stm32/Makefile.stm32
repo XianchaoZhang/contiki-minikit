@@ -8,6 +8,10 @@ ifndef LIBOPENCM3_TARGET
   $(error platform Makefile should define LIBOPENCM3_TARGET. e.g. "stm32/f1")
 endif
 
+ifndef LINKERSCRIPT
+  $(error platform Makefile should define LINKERSCRIPT)
+endif
+
 LIBOPENCM3_SUFFIX = $(subst /,,$(LIBOPENCM3_TARGET))
 
 # Default to STM32F103CB
@@ -60,8 +64,6 @@ OBJCOPY  = arm-none-eabi-objcopy
 STRIP    = arm-none-eabi-strip
 
 PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
-
-LINKERSCRIPT = $(CONTIKI_CPU)/STM32F103$(SUBTARGET).ld
 
 # JTAG program upload
 OPENOCD	 = openocd

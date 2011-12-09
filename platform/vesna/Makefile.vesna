@@ -1,4 +1,7 @@
 LIBOPENCM3_TARGET = stm32/f1
+
+LINKERSCRIPT = $(CONTIKI)/platform/$(TARGET)/stm32_512k_64k.ld
+
 #CODEPROP_SOURCES = codeprop-otf.c ram-segments.c
 
 CONTIKI_TARGET_DIRS = .
