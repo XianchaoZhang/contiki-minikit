@@ -14,7 +14,7 @@ CONTIKI_TARGET_SOURCEFILES += $(SENSORS) $(STEPPER_ROBOT) \
 
 # include $(CONTIKI)/platform/$(TARGET)/apps/Makefile.apps
 
-include $(CONTIKI)/cpu/arm/stm32f103/Makefile.stm32f103
+include $(CONTIKI)/cpu/arm/stm32/Makefile.stm32
 
 #contiki-$(TARGET).a: ${addprefix $(OBJECTDIR)/,symbols.o}
 

@@ -13,7 +13,7 @@ CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
 CONTIKI_CPU_ARM_COMMON=$(CONTIKI_CPU_ARM)/common
 
 ### Define the CPU directory
-CONTIKI_CPU=$(CONTIKI_CPU_ARM)/stm32f103
+CONTIKI_CPU=$(CONTIKI)/cpu/arm/stm32
 
 
 ### Define the source files we have in the STM32F103 port
