@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <debug-uart.h>
 #include <sys/process.h>
 #include <sys/procinit.h>
 #include <etimer.h>
@@ -11,7 +10,6 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/nvic.h>
-#include <stdio.h>
 #include <errno.h>
 
 void clock_setup(void)
@@ -53,26 +51,6 @@ int _write(int file, char *ptr, int len)
 	errno = EIO;
 	return -1;
 }
-
-/*
-int main(void)
-{
-	int counter = 0;
-	float fcounter = 0.0;
-	double dcounter = 0.0;
-
-	while (1) {
-		gpio_toggle(GPIOC, GPIO12);
-		printf("Hello World! %i %f %f\r\n", counter, fcounter,
-		       dcounter);
-		counter++;
-		fcounter += 0.01;
-		dcounter += 0.01;
-	}
-
-	return 0;
-}
-*/
 
 unsigned int idle_count = 0;
 
