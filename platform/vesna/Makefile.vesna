@@ -3,11 +3,13 @@ OPENOCD_PARAMS ?= -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
 
 LINKERSCRIPT = $(CONTIKI)/platform/$(TARGET)/stm32_512k_64k.ld
 
-CONTIKI_TARGET_DIRS = .
+CONTIKI_TARGET_DIRS = . dev
 # Master clock frequency
 MCK=48000000
 
 CONTIKI_TARGET_MAIN = contiki-main.c
+
+CONTIKI_SOURCEFILES += leds.c leds-arch.c
 
 include $(CONTIKI)/cpu/arm/stm32/Makefile.stm32
 

@@ -46,3 +46,12 @@ clock_seconds(void)
 {
   return current_seconds;
 }
+
+/* Undocumented function, delaying for a platform-dependent time? */
+void
+clock_delay(unsigned int delay)
+{
+  for(; delay > 0; delay--) {
+    asm("nop");
+  }
+}
