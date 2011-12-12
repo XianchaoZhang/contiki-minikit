@@ -21,21 +21,13 @@ LIBOPENCM3_SUFFIX = $(subst /,,$(LIBOPENCM3_TARGET))
 LIBOPENCM3_CFLAGS = -D$(shell echo $(LIBOPENCM3_SUFFIX)|tr [a-z] [A-Z]) \
                     -I$(LIBOPENCM3_HOME)/include
 
-### Code common for all ARM CPUs
-
-CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
-CONTIKI_CPU_ARM_COMMON=$(CONTIKI_CPU_ARM)/common
-
-### Define the CPU directory
+# Define the CPU directory
 
 CONTIKI_CPU=$(CONTIKI)/cpu/arm/stm32
-
-### Define the source files we have in the STM32F103 port
 
 CONTIKI_CPU_DIRS = .
 
 CONTIKI_SOURCEFILES += clock.c
-
 
 THREADS =
 
@@ -44,7 +36,7 @@ THREADS =
 GCC_TARGET ?= arm-none-eabi
 
 CC       = $(GCC_TARGET)-gcc
-LD       = $(GCC_TARGET)-ld
+LD       = $(GCC_TARGET)-gcc
 AS       = $(GCC_TARGET)-as
 AR       = $(GCC_TARGET)-ar
 NM       = $(GCC_TARGET)-nm
@@ -64,96 +56,20 @@ CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) \
 
 CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN \
            $(LIBOPENCM3_CFLAGS)
-LDFLAGS += -L $(CONTIKI_CPU) -T $(LINKERSCRIPT) -nostartfiles \
-           -L $(LIBOPENCM3_HOME)/lib/$(LIBOPENCM3_TARGET) \
+LDFLAGS += -L$(CONTIKI_CPU) -nostartfiles \
+           -L$(LIBOPENCM3_HOME)/lib/$(LIBOPENCM3_TARGET) -T$(LINKERSCRIPT) \
            -Wl,--gc-sections
 
-CDEPFLAGS = $(CFLAGS) -D __MAKING_DEPS__
-
-
-
-
-### Setup directory search path for source files
-
-CUSTOM_RULE_C_TO_OBJECTDIR_O=yes
-CUSTOM_RULE_C_TO_O=yes
-
-%.o: %.c
-	$(CC) $(CFLAGS) $< -c
-
-$(OBJECTDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-
-CUSTOM_RULE_S_TO_OBJECTDIR_O = yes
-%.o: %.S
-	$(CC) $(CFLAGS) $< -c
-
-$(OBJECTDIR)/%.o: %.S
-	$(CC) $(CFLAGS) $< -c  -o $@
-
-
-CUSTOM_RULE_C_TO_CO=yes
-
-%.co: %.c
-	$(CC) $(CFLAGS) $< -c -o $@
-
-CUSTOM_RULE_C_TO_CE=yes
-
-%.ce: %.o
-	$(LD) $(LDFLAGS) --relocatable -T $(CONTIKI_CPU)/merge-rodata.ld $< -o $@
-	$(STRIP) -K _init -K _fini --strip-unneeded -g -x $@
-
-CUSTOM_RULE_LINK=yes
-
-%-stripped.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-	$(STRIP) --strip-unneeded -g -x $@
-
-%-stripped.o: %.o
-	$(STRIP) --strip-unneeded -g -x -o $@ $<
-
-%.o: ${CONTIKI_TARGET}/loader/%.S
-	$(AS) -o $(notdir $(<:.S=.o)) $<
-
-%-nosyms.$(TARGET): %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a # $(OBJECTDIR)/empty-symbols.o
-	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) $(filter %.a,$^) -lopencm3_$(LIBOPENCM3_SUFFIX) -lc -lnosys
-
-
-%.ihex: %.$(TARGET)
-	$(OBJCOPY) $^ -O ihex $@
+TARGET_LIBFILES += -lopencm3_$(LIBOPENCM3_SUFFIX) -lc -lnosys
 
 %.bin: %.$(TARGET)
 	$(OBJCOPY) -O binary $< $@
- 
-.PHONY: symbols.c
-ifdef CORE
-%.$(TARGET): %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a $(OBJECTDIR)/symbols.o
-	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) -lc $(filter %.a,$^)
-
-symbols.c: $(CORE)
-	$(NM) $< | awk -f $(CONTIKI_CPU)/builtins.awk -f ../../tools/mknmlist > symbols.c
-
-else
-%.$(TARGET): %-nosyms.$(TARGET)
-	ln -sf $< $@
-endif
-
-empty-symbols.c:
-	cp ${CONTIKI}/tools/empty-symbols.c symbols.c
-	cp ${CONTIKI}/tools/empty-symbols.h symbols.h
-
-
 
 %.u: %.bin
 	$(OPENOCD) $(OPENOCD_PARAMS) -c "init;reset halt;poll;stm32f1x mass_erase 0;flash write_bank 0 $< 0;reset run;shutdown"
 
 ocd_reset:
 	$(OPENOCD) $(OPENOCD_PARAMS) -c "init;reset halt;poll;reset run;shutdown"
-
-# Don't use core/loader/elfloader.c, use elfloader-otf.c instead
-$(OBJECTDIR)/elfloader.o: 
-	echo -n >$@
 
 clean: clean_cpu
 
