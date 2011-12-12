@@ -1,21 +1,17 @@
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-
+#include "dev/models.h"
 #include "dev/leds.h"
 
 void
 leds_arch_init(void)
 {
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-
-	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
-      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2);
+	gpio_set_mode(LED_GPIO, GPIO_MODE_OUTPUT_2_MHZ,
+      GPIO_CNF_OUTPUT_PUSHPULL, LED_PIN);
 }
 
 unsigned char
 leds_arch_get(void)
 {
-	if(gpio_get(GPIOB, GPIO2)) {
+	if(gpio_get(LED_GPIO, LED_PIN)) {
 		return LEDS_YELLOW;
   } else {
 		return 0;
@@ -26,8 +22,8 @@ void
 leds_arch_set(unsigned char leds)
 {
 	if(leds & LEDS_YELLOW) {
-    gpio_set(GPIOB, GPIO2);
+    gpio_set(LED_GPIO, LED_PIN);
   } else {
-    gpio_clear(GPIOB, GPIO2);
+    gpio_clear(LED_GPIO, LED_PIN);
   }
 }

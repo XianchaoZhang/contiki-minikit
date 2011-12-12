@@ -12,19 +12,24 @@
 #include <libopencm3/stm32/nvic.h>
 #include <errno.h>
 
+#include "dev/models.h"
+
 void clock_setup(void)
 {
   rcc_clock_setup_in_hsi_out_48mhz();
 
-	/* Enable clocks for GPIO port A (for GPIO_USART1_TX) and USART1. */
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN |
-				    RCC_APB2ENR_AFIOEN | RCC_APB2ENR_USART1EN);
+  /* Enable clocks for GPIO port A, B and USART1. */
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, 
+      RCC_APB2ENR_IOPAEN |
+      RCC_APB2ENR_IOPBEN |
+      RCC_APB2ENR_AFIOEN | 
+      RCC_APB2ENR_USART1EN);
 }
 
 void usart_setup(void)
 {
-	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
-		      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO9);
+	gpio_set_mode(USART_GPIO, GPIO_MODE_OUTPUT_50_MHZ,
+		      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, USART_PIN);
 
 	/* Setup UART parameters. */
 	usart_set_baudrate(USART1, 19200);
