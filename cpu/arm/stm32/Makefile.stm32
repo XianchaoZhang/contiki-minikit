@@ -32,14 +32,16 @@ CONTIKI_SOURCEFILES += clock.c
 
 THREADS =
 
-# Compiler definitions
-CC       = arm-none-eabi-gcc
-LD       = arm-none-eabi-ld
-AS       = arm-none-eabi-as
-AR       = arm-none-eabi-ar
-NM       = arm-none-eabi-nm
-OBJCOPY  = arm-none-eabi-objcopy
-STRIP    = arm-none-eabi-strip
+# Toolchain definitions
+GCC_TARGET ?= arm-none-eabi
+
+CC       = $(GCC_TARGET)-gcc
+LD       = $(GCC_TARGET)-ld
+AS       = $(GCC_TARGET)-as
+AR       = $(GCC_TARGET)-ar
+NM       = $(GCC_TARGET)-nm
+OBJCOPY  = $(GCC_TARGET)-objcopy
+STRIP    = $(GCC_TARGET)-strip
 
 PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
 
