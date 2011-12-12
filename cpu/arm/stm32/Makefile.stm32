@@ -51,10 +51,10 @@ ARCH_FLAGS= -march=armv7-m -mthumb
 
 CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) \
            ${addprefix -I,$(APPDIRS)} \
-           -DWITH_UIP -DWITH_ASCII -DMCK=$(MCK) \
+           -DMCK=$(MCK) \
            -Wall $(ARCH_FLAGS) -g
 
-CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN \
+CFLAGS  += $(CFLAGSNO) -O \
            $(LIBOPENCM3_CFLAGS)
 LDFLAGS += -L$(CONTIKI_CPU) -nostartfiles \
            -L$(LIBOPENCM3_HOME)/lib/$(LIBOPENCM3_TARGET) -T$(LINKERSCRIPT) \
