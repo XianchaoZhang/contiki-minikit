@@ -12,6 +12,10 @@ ifndef LINKERSCRIPT
   $(error platform Makefile should define LINKERSCRIPT)
 endif
 
+ifndef OPENOCD_PARAMS
+  $(error platform Makefile should define OPENOCD_PARAMS)
+endif
+
 LIBOPENCM3_SUFFIX = $(subst /,,$(LIBOPENCM3_TARGET))
 
 ### Code common for all ARM CPUs
@@ -33,6 +37,7 @@ CONTIKI_SOURCEFILES += clock.c
 THREADS =
 
 # Toolchain definitions
+
 GCC_TARGET ?= arm-none-eabi
 
 CC       = $(GCC_TARGET)-gcc
@@ -43,19 +48,9 @@ NM       = $(GCC_TARGET)-nm
 OBJCOPY  = $(GCC_TARGET)-objcopy
 STRIP    = $(GCC_TARGET)-strip
 
-PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
-
-# JTAG program upload
 OPENOCD	 = openocd
-OPENOCD_DIR = $(CONTIKI_CPU_ARM)/openocd/ 
-OPENOCD_CFG = arm7_wig.cfg
 
-# USB program upload
-SAMIAM=Sam_I_Am
-SAMIAM_TTY=/dev/ttyACM0
-
-# Use OpenOCD by default
-PROG=openocd
+PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
 
 ARCH_FLAGS= -march=armv7-m -mthumb
 
@@ -147,29 +142,17 @@ empty-symbols.c:
 
 
 
-ifeq ($(PROG),openocd)
 %.u: %.bin
-	# Clear lock bits
-	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -c init -c "reset halt;sleep 250;flash probe 0;stm32x mass_erase 0; sleep 500;flash write_bank 0 $< 0;reset halt;resume;sleep 500;exit"
-else ifeq ($(PROG),samiam)
-%.u: %.ihex
-	# Clear lock bits
-	$(SAMIAM) "open $(SAMIAM_TTY) , writew 0xffffff64 5a000004"
-	$(SAMIAM) "open $(SAMIAM_TTY) , writew 0xffffff64 5a002004"
-	$(SAMIAM) "open $(SAMIAM_TTY) , flash $< , go"
-
-endif
+	$(OPENOCD) $(OPENOCD_PARAMS) -c "init;reset halt;poll;stm32f1x mass_erase 0;flash write_bank 0 $< 0;reset run;shutdown"
 
 ocd_reset:
-	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -c init -c "reset halt;resume" -c exit
+	$(OPENOCD) $(OPENOCD_PARAMS) -c "init;reset halt;poll;reset run;shutdown"
 
 # Don't use core/loader/elfloader.c, use elfloader-otf.c instead
 $(OBJECTDIR)/elfloader.o: 
 	echo -n >$@
 
 clean: clean_cpu
-
-.PHONY: stm32test_clean
 
 clean_cpu:
 	-rm -rf $(BUILTSRCDIR)

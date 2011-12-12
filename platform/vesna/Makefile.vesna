@@ -1,4 +1,5 @@
 LIBOPENCM3_TARGET = stm32/f1
+OPENOCD_PARAMS ?= -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
 
 LINKERSCRIPT = $(CONTIKI)/platform/$(TARGET)/stm32_512k_64k.ld
 
