@@ -5,6 +5,8 @@
 *.log
 *.elf
 *.ihex
+*.vesna
+tags
 obj_*
 symbols.*
 Makefile.target
