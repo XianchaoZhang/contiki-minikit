@@ -42,6 +42,20 @@
 #include "contiki.h"
 #include "contiki-net.h"
 
+
+/* Define which resources to include to meet memory constraints. */
+#define REST_RES_HELLO 1
+#define REST_RES_MIRROR 0
+#define REST_RES_CHUNKS 1
+#define REST_RES_POLLING 0
+#define REST_RES_EVENT 1
+#define REST_RES_LEDS 0
+#define REST_RES_TOGGLE 1
+#define REST_RES_LIGHT 1
+#define REST_RES_BATTERY 0
+
+
+
 #if !UIP_CONF_IPV6_RPL && !defined (CONTIKI_TARGET_MINIMAL_NET)
 #warning "Compiling with static routing!"
 #include "static-routing.h"
@@ -89,6 +103,8 @@
 #define PRINTLLADDR(addr)
 #endif
 
+
+#if REST_RES_HELLO
 /*
  * Resources are defined by the RESOURCE macro.
  * Signature: resource name, the RESTful methods it handles, and its URI path (omitting the leading slash).
@@ -123,9 +139,11 @@ helloworld_handler(void* request, void* response, uint8_t *buffer, uint16_t pref
   REST.set_header_etag(response, (uint8_t *) &length, 1);
   REST.set_response_payload(response, buffer, length);
 }
+#endif
 
+#if REST_RES_MIRROR
 /* This resource mirrors the incoming request. It shows how to access the options and how to set them for the response. */
-RESOURCE(mirror, METHOD_GET | METHOD_POST | METHOD_PUT | METHOD_DELETE, "mirror", "title=\"Returns your decoded message\";rt=\"Debug\"");
+RESOURCE(mirror, METHOD_GET | METHOD_POST | METHOD_PUT | METHOD_DELETE, "debug/mirror", "title=\"Returns your decoded message\";rt=\"Debug\"");
 
 void
 mirror_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
@@ -274,7 +292,9 @@ mirror_handler(void* request, void* response, uint8_t *buffer, uint16_t preferre
 #endif
 #endif /* CoAP-specific example */
 }
+#endif /* REST_RES_MIRROR */
 
+#if REST_RES_CHUNKS
 /*
  * For data larger than REST_MAX_CHUNK_SIZE (e.g., stored in flash) resources must be aware of the buffer limitation
  * and split their responses by themselves. To transfer the complete resource through a TCP stream or CoAP's blockwise transfer,
@@ -282,7 +302,7 @@ mirror_handler(void* request, void* response, uint8_t *buffer, uint16_t preferre
  * These chunk-wise resources must set the offset value to its new position or -1 of the end is reached.
  * (The offset for CoAP's blockwise transfer can go up to 2'147'481'600 = ~2047 M for block size 2048 (reduced to 1024 in observe-03.)
  */
-RESOURCE(chunks, METHOD_GET, "chunks", "title=\"Blockwise demo\";rt=\"Data\"");
+RESOURCE(chunks, METHOD_GET, "debug/chunks", "title=\"Blockwise demo\";rt=\"Data\"");
 
 #define CHUNKS_TOTAL    2050
 
@@ -329,13 +349,15 @@ chunks_handler(void* request, void* response, uint8_t *buffer, uint16_t preferre
     *offset = -1;
   }
 }
+#endif
 
+#if REST_RES_POLLING
 /*
  * Example for a periodic resource.
  * It takes an additional period parameter, which defines the interval to call [name]_periodic_handler().
  * A default post_handler takes care of subscriptions by managing a list of subscribers to notify.
  */
-PERIODIC_RESOURCE(polling, METHOD_GET, "poll", "title=\"Periodic demo\";rt=\"Observable\"", 5*CLOCK_SECOND);
+PERIODIC_RESOURCE(polling, METHOD_GET, "debug/poll", "title=\"Periodic demo\";rt=\"Observable\"", 5*CLOCK_SECOND);
 
 void
 polling_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
@@ -365,14 +387,15 @@ polling_periodic_handler(resource_t *r)
 
   return 1;
 }
+#endif
 
-#if defined (PLATFORM_HAS_BUTTON)
+#if defined (PLATFORM_HAS_BUTTON) && REST_RES_EVENT
 /*
  * Example for an event resource.
  * Additionally takes a period parameter that defines the interval to call [name]_periodic_handler().
  * A default post_handler takes care of subscriptions and manages a list of subscribers to notify.
  */
-EVENT_RESOURCE(event, METHOD_GET, "event", "title=\"Event demo\";rt=\"Observable\"");
+EVENT_RESOURCE(event, METHOD_GET, "sensors/button", "title=\"Event demo\";rt=\"Observable\"");
 
 void
 event_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
@@ -404,11 +427,12 @@ event_event_handler(resource_t *r)
 #endif /* PLATFORM_HAS_BUTTON */
 
 #if defined (PLATFORM_HAS_LEDS)
+#if REST_RES_LEDS
 /*A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated*/
-RESOURCE(led, METHOD_POST | METHOD_PUT , "leds", "title=\"LEDs: ?color=r|g|b, POST/PUT mode=on|off\";rt=\"Control\"");
+RESOURCE(leds, METHOD_POST | METHOD_PUT , "actuators/leds", "title=\"LEDs: ?color=r|g|b, POST/PUT mode=on|off\";rt=\"Control\"");
 
 void
-led_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+leds_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
   size_t len = 0;
   const char *color = NULL;
@@ -450,19 +474,22 @@ led_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_s
     REST.set_response_status(response, REST.status.BAD_REQUEST);
   }
 }
+#endif
 
+#if REST_RES_TOGGLE
 /* A simple actuator example. Toggles the red led */
-RESOURCE(toggle, METHOD_GET | METHOD_PUT | METHOD_POST, "toggle", "title=\"Red LED\";rt=\"Control\"");
+RESOURCE(toggle, METHOD_GET | METHOD_PUT | METHOD_POST, "actuators/toggle", "title=\"Red LED\";rt=\"Control\"");
 void
 toggle_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
   leds_toggle(LEDS_RED);
 }
+#endif
 #endif /* PLATFORM_HAS_LEDS */
 
-#if defined (PLATFORM_HAS_LIGHT)
+#if defined (PLATFORM_HAS_LIGHT) && REST_RES_LIGHT
 /* A simple getter example. Returns the reading from light sensor with a simple etag */
-RESOURCE(light, METHOD_GET, "light", "title=\"Photosynthetic and solar light (supports JSON)\";rt=\"LightSensor\"");
+RESOURCE(light, METHOD_GET, "sensors/light", "title=\"Photosynthetic and solar light (supports JSON)\";rt=\"LightSensor\"");
 void
 light_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
@@ -501,9 +528,9 @@ light_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred
 }
 #endif /* PLATFORM_HAS_LIGHT */
 
-#if defined (PLATFORM_HAS_BATTERY)
+#if defined (PLATFORM_HAS_BATTERY) && REST_RES_BATTERY
 /* A simple getter example. Returns the reading from light sensor with a simple etag */
-RESOURCE(battery, METHOD_GET, "battery", "title=\"Battery status\";rt=\"Battery\"");
+RESOURCE(battery, METHOD_GET, "sensors/battery", "title=\"Battery status\";rt=\"Battery\"");
 void
 battery_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
@@ -565,25 +592,35 @@ PROCESS_THREAD(rest_server_example, ev, data)
   rest_init_framework();
 
   /* Activate the application-specific resources. */
+#if REST_RES_HELLO
   rest_activate_resource(&resource_helloworld);
+#endif
+#if REST_RES_MIRROR
   rest_activate_resource(&resource_mirror);
+#endif
+#if REST_RES_CHUNKS
   rest_activate_resource(&resource_chunks);
+#endif
+#if REST_RES_POLLING
   rest_activate_periodic_resource(&periodic_resource_polling);
-
-#if defined (PLATFORM_HAS_BUTTON)
+#endif
+#if defined (PLATFORM_HAS_BUTTON) && REST_RES_EVENT
   SENSORS_ACTIVATE(button_sensor);
   rest_activate_event_resource(&resource_event);
 #endif
 #if defined (PLATFORM_HAS_LEDS)
-  rest_activate_resource(&resource_led);
+#if REST_RES_LEDS
+  rest_activate_resource(&resource_leds);
+#endif
+#if REST_RES_TOGGLE
   rest_activate_resource(&resource_toggle);
+#endif
 #endif /* PLATFORM_HAS_LEDS */
-
-#if defined (PLATFORM_HAS_LIGHT)
+#if defined (PLATFORM_HAS_LIGHT) && REST_RES_LIGHT
   SENSORS_ACTIVATE(light_sensor);
   rest_activate_resource(&resource_light);
 #endif
-#if defined (PLATFORM_HAS_BATTERY)
+#if defined (PLATFORM_HAS_BATTERY) && REST_RES_BATTERY
   SENSORS_ACTIVATE(battery_sensor);
   rest_activate_resource(&resource_battery);
 #endif
@@ -591,7 +628,7 @@ PROCESS_THREAD(rest_server_example, ev, data)
   /* Define application-specific events here. */
   while(1) {
     PROCESS_WAIT_EVENT();
-#if defined (PLATFORM_HAS_BUTTON)
+#if defined (PLATFORM_HAS_BUTTON) && REST_RES_EVENT
     if (ev == sensors_event && data == &button_sensor) {
       PRINTF("BUTTON\n");
       /* Call the event_handler for this application-specific event. */
