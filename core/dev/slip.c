@@ -101,29 +101,7 @@ slip_set_input_callback(void (*c)(void))
 u8_t
 slip_send(void)
 {
-  u16_t i;
-  u8_t *ptr;
-  u8_t c;
-
-  slip_arch_writeb(SLIP_END);
-
-  ptr = &uip_buf[UIP_LLH_LEN];
-  for(i = 0; i < uip_len; ++i) {
-    if(i == UIP_TCPIP_HLEN) {
-      ptr = (u8_t *)uip_appdata;
-    }
-    c = *ptr++;
-    if(c == SLIP_END) {
-      slip_arch_writeb(SLIP_ESC);
-      c = SLIP_ESC_END;
-    } else if(c == SLIP_ESC) {
-      slip_arch_writeb(SLIP_ESC);
-      c = SLIP_ESC_ESC;
-    }
-    slip_arch_writeb(c);
-  }
-  slip_arch_writeb(SLIP_END);
-
+  slip_write(&uip_buf[UIP_LLH_LEN], uip_len);
   return UIP_FW_OK;
 }
 //#endif /* WITH_UIP */
