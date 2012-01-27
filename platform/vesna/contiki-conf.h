@@ -32,6 +32,13 @@ typedef unsigned int uip_stats_t;
 
 #define UIP_CONF_TCP_FORWARD 1
 
+/* this is used to define the local link-local IPv6 address */
+#define SLIP_LINKLEVEL_ADDR 0x00,0x00,0x00,0x00,0x00,0x02
+
+/* Neighbor solicitation doesn't work through SLIP, so we need
+ * to know the IP of the remote computer. */
+#define SLIP_REMOTE_IP uip_ip6addr(&ipaddr,0xfe80,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0001)
+
 /* Prefix for relocation sections in ELF files */
 #define REL_SECT_PREFIX ".rel"
 

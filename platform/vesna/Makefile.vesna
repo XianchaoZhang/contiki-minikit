@@ -9,7 +9,7 @@ MCK=48000000
 
 CONTIKI_TARGET_MAIN = contiki-main.c
 
-CONTIKI_SOURCEFILES += leds.c leds-arch.c
+CONTIKI_SOURCEFILES += leds.c leds-arch.c slip.c slip-arch.c
 
 include $(CONTIKI)/cpu/arm/stm32/Makefile.stm32
 
