@@ -855,7 +855,7 @@ uip_ds6_select_src(uip_ipaddr_t *src, uip_ipaddr_t *dst)
       }
     }
   } else {
-    matchaddr = uip_ds6_get_link_local(ADDR_PREFERRED);
+    matchaddr = uip_ds6_get_link_local(-1);
   }
 
   /* use the :: (unspecified address) as source if no match found */
