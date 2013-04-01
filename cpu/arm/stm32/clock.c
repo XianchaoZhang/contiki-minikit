@@ -1,7 +1,7 @@
 #include <sys/etimer.h>
-#include <libopencm3/stm32/systick.h>
-#include <libopencm3/stm32/nvic.h>
-#include <libopencm3/stm32/f1/scb.h>
+#include <libopencm3/cm3/systick.h>
+#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/cm3/scb.h>
 
 static volatile clock_time_t current_clock = 0;
 static volatile unsigned long current_seconds = 0;
