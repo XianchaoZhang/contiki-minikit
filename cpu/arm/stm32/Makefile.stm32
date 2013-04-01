@@ -1,8 +1,8 @@
 # Following need to be defined outside of this file
 
-ifndef LIBOPENCM3_HOME
-  $(error please set LIBOPENCM3_HOME to point to the top of libopencm3 source)
-endif
+#ifndef LIBOPENCM3_HOME
+#  $(error please set LIBOPENCM3_HOME to point to the top of libopencm3 source)
+#endif
 
 ifndef LIBOPENCM3_TARGET
   $(error platform Makefile should define LIBOPENCM3_TARGET. e.g. "stm32/f1")
@@ -33,7 +33,7 @@ THREADS =
 
 # Toolchain definitions
 
-GCC_TARGET ?= arm-none-eabi
+GCC_TARGET ?= $(CONTIKI)/tools/summon-arm-toolchain/bin/arm-none-eabi
 
 CC       = $(GCC_TARGET)-gcc
 LD       = $(GCC_TARGET)-gcc
