@@ -58,7 +58,8 @@ CFLAGS  += $(CFLAGSNO) -O \
            $(LIBOPENCM3_CFLAGS)
 LDFLAGS += -L$(CONTIKI_CPU) -nostartfiles \
            -L$(LIBOPENCM3_HOME)/lib/$(LIBOPENCM3_TARGET) -T$(LINKERSCRIPT) \
-           -Wl,--gc-sections
+           -Wl,--gc-sections \
+           $(ARCH_FLAGS)
 
 TARGET_LIBFILES += -lopencm3_$(LIBOPENCM3_SUFFIX) -lc -lnosys
 
