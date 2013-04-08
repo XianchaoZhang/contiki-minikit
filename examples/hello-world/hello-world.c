@@ -44,12 +44,28 @@
 /*---------------------------------------------------------------------------*/
 PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
+static process_event_t event_data_ready;
+
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(hello_world_process, ev, data)
 {
   PROCESS_BEGIN();
+  static struct etimer timer;
 
-  printf("Hello, world\n");
+  etimer_set(&timer, CLOCK_CONF_SECOND / 10);
+
+  event_data_ready = process_alloc_event();
+
+  while (1)
+  {
+    PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER);
+
+    printf("Hello, world!\n");
+
+   //process_post(&hello_world_process, event_data_ready, NULL);
+
+    etimer_reset(&timer);
+  }
   
   PROCESS_END();
 }
