@@ -1,0 +1,28 @@
+LIBOPENCM3_TARGET = stm32/f1
+OPENOCD_PARAMS ?= -f interface/olimex-arm-usb-ocd.cfg -f target/stm32f1x.cfg
+
+LINKERSCRIPT = $(CONTIKI)/platform/$(TARGET)/main.ld
+
+CONTIKI_TARGET_DIRS = . dev
+# Master clock frequency
+MCK=48000000
+
+CONTIKI_TARGET_MAIN = contiki-main.c
+
+CONTIKI_SOURCEFILES += leds.c leds-arch.c
+
+include $(CONTIKI)/cpu/arm/stm32/Makefile.stm32
+
+ifndef BASE_IP
+BASE_IP := 172.16.1.1
+endif
+
+### System dependent Makefile
+
+ifndef WINDIR
+  ifdef OS
+    ifneq (,$(findstring Windows,$(OS)))
+      WINDIR := Windows
+    endif
+  endif
+endif
